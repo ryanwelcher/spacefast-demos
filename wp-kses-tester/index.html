@@ -107,10 +107,20 @@ select { font: inherit; color: var(--fg); background: var(--surface-2); border: 
 .villain-clip.ready[data-state="peek"] .villain { opacity: .75; --lit: .3; }
 .villain-clip[data-state="lurk"] .villain,
 .villain-clip[data-state="nervous"] .villain { opacity: 1; --lit: 1; transform: translateY(20%); }
+/* Caught: he flinches in place while he delivers his line, then retreats (foiled). */
+.villain-clip[data-state="caught"] .villain { opacity: 1; --lit: 1; transform: translateY(20%); animation: caught .5s ease; }
+@keyframes caught {
+  0%, 100% { transform: translateY(20%); }
+  20% { transform: translate(-6px, 14%) rotate(-3deg); }
+  40% { transform: translate(6px, 18%) rotate(3deg); }
+  60% { transform: translate(-4px, 20%) rotate(-2deg); }
+  80% { transform: translate(3px, 20%) rotate(1deg); }
+}
 .villain-clip[data-state="foiled"] .villain { opacity: 0; --lit: 0; transform: translateY(100%); }
 .villain-say { position: absolute; right: 270px; bottom: calc(100% + 30px); max-width: 260px; margin: 0; padding: 8px 12px; font-size: .85rem; font-weight: 600; color: #fff; background: #262b40; border-radius: 12px; opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s; pointer-events: none; z-index: 2; }
 .villain-say::after { content: ""; position: absolute; right: -8px; bottom: 10px; border: 8px solid transparent; border-left-color: #262b40; border-right: 0; }
 .villain-say.show { opacity: 1; transform: none; }
+.input-wrap:has(.villain-clip[data-state="foiled"]) .villain-say { transition-duration: .9s; }
 @media (prefers-color-scheme: dark) {
   .villain { --outline: drop-shadow(0 0 1px #c9c2ff) drop-shadow(0 0 1px #c9c2ff); }
   .villain-say { background: #3a4160; }
@@ -122,7 +132,7 @@ select { font: inherit; color: var(--fg); background: var(--surface-2); border: 
   .villain-say { right: 170px; max-width: 150px; bottom: calc(100% + 44px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .villain, .villain-say { transition: none; }
+  .villain, .villain-say { transition: none; animation: none; }
 }
 
 /* Results */
@@ -414,8 +424,12 @@ function villainFromInput() {
 }
 function villainFoiled() {
   const lines = ['Curses. Escaped again.', "Sanitized! I'll get you, wp_kses().", "Hey! Who parsed me properly?"];
-  setVillain('foiled', lines[Math.floor(Math.random() * lines.length)]);
-  villainTimer = setTimeout(() => $('villain-say').classList.remove('show'), 3200);
+  setVillain('caught', lines[Math.floor(Math.random() * lines.length)]);
+  // He finishes his line, then he and the bubble melt back into the shadows together.
+  villainTimer = setTimeout(() => {
+    setVillain('foiled');
+    villainTimer = setTimeout(() => setVillain('peek'), 1400);
+  }, 2400);
 }
 
 // Clear.
