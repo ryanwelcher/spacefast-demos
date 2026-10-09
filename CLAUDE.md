@@ -37,7 +37,10 @@ Every demo has to be three things: **clear in its purpose**, **functional**, and
 ## Fun
 
 - **Give it a personality that comes from the topic.** A character or a metaphor, not stock decoration. In `blocks-7-1/` that's a block mascot that cracks and sweats, a Bork-o-Meter gauge, and headline letters that fall when code breaks.
-- **The fun reacts to the result.** Drive visuals from state (`data-state`, `data-distress` on `<body>`): confetti when things are fixed, debris and a wobbling frame when they break. The fun is part of the answer, not wallpaper.
+- **Match the fun to what the demo shows.**
+  - **When the result can go either way** (pass/fail, safe/broken), a mascot or meter that reacts is great. Drive it from state (`data-state`, `data-distress` on `<body>`): confetti when things are fixed, debris and a wobbling frame when they break.
+  - **When the result is always a difference to look at** (like `wp-kses-tester/`, where the output always changes and the point is how it changes), skip the score and the reacting character. Put the fun into how the difference is presented: the look, the highlighting, the labels.
+  - Either way, the fun is part of the answer, not wallpaper.
 - **A bold, warm look, not generic SaaS:**
   - A warm off-white background with dark ink text.
   - WordPress blue plus two or three bright accents (pink, yellow, green).
