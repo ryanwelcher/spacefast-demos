@@ -95,13 +95,13 @@ select { font: inherit; color: var(--fg); background: var(--surface-2); border: 
 .run.nudge { animation: nudge 1s ease 2; }
 @keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); box-shadow: 0 0 0 6px var(--accent-soft); } }
 
-/* The villain: a ninja (unsafe HTML) hiding behind the input box. Static image, slides up and down. */
+/* The villain: a ninja (unsafe HTML) hiding behind the input box. Cropped photo, slides up and down. */
 .input-wrap { position: relative; margin-top: 8px; }
 /* The textarea (and its focus ring) sits in front of the ninja, so he hides behind it. */
 .input-wrap textarea { position: relative; z-index: 3; display: block; }
 .steps { margin-bottom: 64px; }
 .villain-clip { position: absolute; right: 24px; bottom: calc(100% - 14px); width: 132px; height: 133px; overflow: hidden; pointer-events: none; z-index: 1; }
-.villain { position: absolute; left: 0; bottom: 0; width: 132px; height: auto; display: block; transform: translateY(58%); transition: transform .45s ease; }
+.villain { position: absolute; left: 0; bottom: 0; width: 132px; height: auto; display: block; box-sizing: border-box; border: 3px solid var(--fg); border-radius: 14px; transform: translateY(46%); transition: transform .45s ease; }
 .villain-clip[data-state="lurk"] .villain,
 .villain-clip[data-state="nervous"] .villain { transform: translateY(20%); }
 .villain-clip[data-state="foiled"] .villain { transform: translateY(100%); }
@@ -109,7 +109,6 @@ select { font: inherit; color: var(--fg); background: var(--surface-2); border: 
 .villain-say::after { content: ""; position: absolute; right: -8px; bottom: 10px; border: 8px solid transparent; border-left-color: #262b40; border-right: 0; }
 .villain-say.show { opacity: 1; transform: none; }
 @media (prefers-color-scheme: dark) {
-  .villain { filter: drop-shadow(0 0 1px #c9c2ff) drop-shadow(0 0 1px #c9c2ff); }
   .villain-say { background: #3a4160; }
   .villain-say::after { border-left-color: #3a4160; }
 }
@@ -198,7 +197,7 @@ footer ul { margin: 0; padding-left: 18px; }
     <div class="input-wrap">
       <p class="villain-say" id="villain-say" aria-hidden="true"></p>
       <div class="villain-clip" id="villain" data-state="peek" aria-hidden="true">
-        <img class="villain" src="ninja.svg" alt="" width="132" height="119">
+        <img class="villain" src="ninja.jpg" alt="" width="132" height="132">
       </div>
       <textarea id="input" spellcheck="false" placeholder="<p>Paste your HTML here…</p>"></textarea>
     </div>
