@@ -95,6 +95,53 @@ select { font: inherit; color: var(--fg); background: var(--surface-2); border: 
 .run.nudge { animation: nudge 1s ease 2; }
 @keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); box-shadow: 0 0 0 6px var(--accent-soft); } }
 
+/* The villain: unsafe HTML hiding behind the input box. */
+.input-wrap { position: relative; margin-top: 8px; }
+.steps { margin-bottom: 40px; }
+.villain-clip { position: absolute; right: 28px; bottom: 100%; width: 128px; height: 104px; overflow: hidden; pointer-events: none; z-index: 2; }
+.villain { position: absolute; left: 0; bottom: -2px; width: 128px; height: 104px; transform: translateY(66%); transition: transform .55s cubic-bezier(.34, 1.56, .64, 1); }
+.villain-clip[data-state="lurk"] .villain,
+.villain-clip[data-state="nervous"] .villain { transform: translateY(6%); }
+.villain-clip[data-state="foiled"] .villain { transform: translateY(50%) rotate(-6deg); transition-duration: .8s; }
+.v-head { fill: #2b2342; stroke: #16131f; stroke-width: 3; }
+.v-mask { fill: #16131f; }
+.v-eye { fill: #fff; }
+.v-pupil { fill: #16131f; }
+.v-mouth, .v-frown { fill: none; stroke: #ffd23f; stroke-width: 3; stroke-linecap: round; }
+.v-hand { fill: #2b2342; stroke: #16131f; stroke-width: 3; }
+.v-horn { font: 800 30px/1 ui-monospace, SFMono-Regular, Menlo, monospace; fill: #ff4f8b; }
+.v-horn-esc { font: 800 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; fill: #ff4f8b; opacity: 0; }
+.v-dizzy, .v-frown, .v-sweat, .v-stars { opacity: 0; transition: opacity .2s; }
+.v-sweat { fill: #8ec5ff; }
+.v-stars { fill: #ffd23f; transform-origin: 64px 30px; }
+.villain-clip[data-state="lurk"] .v-pupils { animation: shifty 2.4s ease-in-out infinite; }
+.villain-clip[data-state="lurk"] .v-hands { animation: scheme .7s ease-in-out infinite alternate; }
+.villain-clip[data-state="nervous"] .v-sweat { opacity: 1; }
+.villain-clip[data-state="nervous"] .v-head { animation: jitter .12s linear infinite; }
+.villain-clip[data-state="foiled"] .v-eyes, .villain-clip[data-state="foiled"] .v-mouth, .villain-clip[data-state="foiled"] .v-horn { opacity: 0; }
+.villain-clip[data-state="foiled"] .v-dizzy, .villain-clip[data-state="foiled"] .v-frown, .villain-clip[data-state="foiled"] .v-horn-esc { opacity: 1; }
+.villain-clip[data-state="foiled"] .v-stars { opacity: 1; animation: spin 2.5s linear infinite; }
+@keyframes shifty { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-3px); } 65% { transform: translateX(3px); } }
+@keyframes scheme { from { transform: translateX(0); } to { transform: translateX(3px); } }
+@keyframes jitter { 0% { transform: translateX(-1px); } 50% { transform: translateX(1px); } 100% { transform: translateX(-1px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.villain-say { position: absolute; right: 164px; bottom: calc(100% + 26px); max-width: 260px; margin: 0; padding: 8px 12px; font-size: .85rem; font-weight: 600; color: #fff; background: #2b2342; border-radius: 12px; opacity: 0; transform: translateY(6px) scale(.96); transition: opacity .25s, transform .25s; pointer-events: none; z-index: 2; }
+.villain-say::after { content: ""; position: absolute; right: -8px; bottom: 10px; border: 8px solid transparent; border-left-color: #2b2342; border-right: 0; }
+.villain-say.show { opacity: 1; transform: none; }
+@media (prefers-color-scheme: dark) {
+  .v-head, .v-hand { stroke: #b9b0ff; }
+  .villain-say { background: #3a2f5c; }
+  .villain-say::after { border-left-color: #3a2f5c; }
+}
+@media (max-width: 760px) {
+  .villain-clip { right: 12px; transform: scale(.8); transform-origin: bottom right; }
+  .villain-say { right: 118px; max-width: 170px; bottom: calc(100% + 22px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .villain, .villain-say { transition: none; }
+  .villain-clip *, .villain-clip .villain { animation: none !important; }
+}
+
 /* Results */
 .results { margin-top: 20px; border-top: 1px solid var(--border); padding-top: 20px; }
 .empty { margin: 0; padding: 28px; text-align: center; color: var(--muted); background: var(--surface-2); border: 1px dashed var(--border); border-radius: 10px; }
@@ -168,7 +215,38 @@ footer ul { margin: 0; padding-left: 18px; }
     </ol>
 
     <label for="input" class="field-label">Your HTML</label>
-    <textarea id="input" spellcheck="false" placeholder="<p>Paste your HTML here…</p>"></textarea>
+    <div class="input-wrap">
+      <p class="villain-say" id="villain-say" aria-hidden="true"></p>
+      <div class="villain-clip" id="villain" data-state="peek" aria-hidden="true">
+        <svg class="villain" viewBox="0 0 128 104">
+          <g class="v-head-g">
+            <text class="v-horn" x="18" y="30">&lt;</text>
+            <text class="v-horn" x="92" y="30">&gt;</text>
+            <text class="v-horn-esc" x="8" y="26">&amp;lt;</text>
+            <text class="v-horn-esc" x="88" y="26">&amp;gt;</text>
+            <rect class="v-head" x="22" y="22" width="84" height="78" rx="26"/>
+            <rect class="v-mask" x="22" y="40" width="84" height="20" rx="6"/>
+            <g class="v-eyes">
+              <ellipse class="v-eye" cx="48" cy="50" rx="9" ry="6"/>
+              <ellipse class="v-eye" cx="80" cy="50" rx="9" ry="6"/>
+              <g class="v-pupils"><circle class="v-pupil" cx="50" cy="51" r="3.5"/><circle class="v-pupil" cx="82" cy="51" r="3.5"/></g>
+            </g>
+            <g class="v-dizzy" stroke="#fff" stroke-width="3" stroke-linecap="round">
+              <path d="M42 45 L54 55 M54 45 L42 55"/><path d="M74 45 L86 55 M86 45 L74 55"/>
+            </g>
+            <path class="v-mouth" d="M48 72 Q64 84 82 70"/>
+            <path class="v-frown" d="M48 78 Q56 72 64 78 Q72 84 80 78"/>
+            <path class="v-sweat" d="M100 34 q6 10 0 13 q-6 -3 0 -13z"/>
+            <g class="v-stars"><text x="20" y="18" font-size="14">✦</text><text x="96" y="14" font-size="11">✦</text><text x="60" y="8" font-size="10">✦</text></g>
+          </g>
+          <g class="v-hands">
+            <ellipse class="v-hand" cx="30" cy="100" rx="12" ry="8"/>
+            <ellipse class="v-hand" cx="98" cy="100" rx="12" ry="8"/>
+          </g>
+        </svg>
+      </div>
+      <textarea id="input" spellcheck="false" placeholder="<p>Paste your HTML here…</p>"></textarea>
+    </div>
     <div class="toolbar">
       <span class="label">Or try an example:</span>
       <button class="chip" data-example="amp">Ampersand</button>
@@ -341,6 +419,7 @@ document.addEventListener('click', (e) => {
   if (!key) return;
   $('input').value = EXAMPLES[key].html;
   markStale();
+  villainFromInput();
   $('input').scrollIntoView({ behavior: 'smooth', block: 'center' });
   const btn = $('run');
   btn.classList.remove('nudge'); void btn.offsetWidth; btn.classList.add('nudge');
@@ -355,9 +434,36 @@ document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('cli
 }));
 const RENDER_HEAD = '<!doctype html><meta charset="utf-8"><style>body{margin:12px;font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#16181d;background:#fff}img{max-width:100%}</style>';
 
+// The villain behind the input box.
+let villainTimer = null;
+function villainLine(html) {
+  if (/<(script|style)\b/i.test(html)) return 'Ooh, a little <script>. Nobody will notice.';
+  if (/&[a-zA-Z][a-zA-Z0-9]*(?![a-zA-Z0-9;])/.test(html)) return 'Heh. Nobody checks the ampersands.';
+  if (/<(svg|math)\b/i.test(html)) return 'MathML? Good luck parsing me.';
+  if (/<[^>]*$/.test(html)) return "Half a tag. They'll never see it coming.";
+  return "Don't mind me. Just a few tags passing through.";
+}
+function setVillain(state, line) {
+  clearTimeout(villainTimer);
+  $('villain').dataset.state = state;
+  const say = $('villain-say');
+  if (line) { say.textContent = line; say.classList.add('show'); } else { say.classList.remove('show'); }
+}
+function villainFromInput() {
+  const html = $('input').value;
+  if (!html.trim()) setVillain('peek');
+  else setVillain('lurk', villainLine(html));
+}
+function villainFoiled() {
+  const lines = ['Curses. Escaped again.', "Sanitized! I'll get you, wp_kses().", "Hey! Who parsed me properly?"];
+  setVillain('foiled', lines[Math.floor(Math.random() * lines.length)]);
+  villainTimer = setTimeout(() => $('villain-say').classList.remove('show'), 3200);
+}
+
 // Clear.
 $('reset').addEventListener('click', () => {
   $('input').value = '';
+  setVillain('peek');
   $('result-body').hidden = true;
   $('empty').hidden = false;
   $('stamp').classList.remove('stale');
@@ -458,8 +564,11 @@ async function compare() {
   }
   $('run').disabled = true;
   $('run').textContent = 'Comparing…';
+  setVillain('nervous', "Wait. What does that button do?");
   try {
-    const r = await runKses(html);
+    // Give the villain a beat to sweat. The parse itself is near-instant.
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const [r] = await Promise.all([runKses(html), new Promise((ok) => setTimeout(ok, reduceMotion ? 0 : 1200))]);
     const parts = Diff.diffChars(r.legacy, r.new);
     $('out-old').innerHTML = parts.filter((p) => !p.added).map((p) => p.removed ? `<del>${esc(p.value)}</del>` : esc(p.value)).join('') || '<span class="kbd">(empty)</span>';
     $('out-new').innerHTML = parts.filter((p) => !p.removed).map((p) => p.added ? `<ins>${esc(p.value)}</ins>` : esc(p.value)).join('') || '<span class="kbd">(empty)</span>';
@@ -490,9 +599,11 @@ async function compare() {
     const top = results.getBoundingClientRect().top;
     if (top < 0 || top > innerHeight - 120) results.scrollIntoView({ behavior: 'smooth', block: 'start' });
     $('run-help').textContent = 'Edit your HTML and click Compare again any time.';
+    villainFoiled();
   } catch (err) {
     console.error(err);
     $('run-help').textContent = 'Something went wrong running wp_kses(). Check the browser console for details.';
+    villainFromInput();
   } finally {
     $('run').disabled = false;
     $('run').textContent = 'Compare';
@@ -501,7 +612,8 @@ async function compare() {
 
 $('run').addEventListener('click', compare);
 $('input').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') compare(); });
-$('input').addEventListener('input', markStale);
+$('input').addEventListener('input', () => { markStale(); villainFromInput(); });
+villainFromInput();
 boot();
 </script>
 </body>
