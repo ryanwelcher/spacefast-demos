@@ -101,15 +101,18 @@ select { font: inherit; color: var(--fg); background: var(--surface-2); border: 
 .input-wrap textarea { position: relative; z-index: 3; display: block; }
 .steps { margin-bottom: 120px; }
 .villain-clip { position: absolute; right: 24px; bottom: calc(100% - 14px); width: 240px; height: 161px; overflow: hidden; pointer-events: none; z-index: 1; }
-.villain { position: absolute; left: 0; bottom: 0; width: 240px; height: auto; display: block; transform: translateY(34%); transition: transform .45s ease; }
+/* He starts invisible, fades in half-hidden in shadow, steps into the light when you type,
+   and melts back into the dark when foiled. --lit is his brightness. */
+.villain { --lit: 0; --outline: drop-shadow(0 0 0 transparent); position: absolute; left: 0; bottom: 0; width: 240px; height: auto; display: block; opacity: 0; filter: var(--outline) brightness(var(--lit)); transform: translateY(52%); transition: transform .45s ease, opacity 1.2s ease, filter 1.2s ease; }
+.villain-clip.ready[data-state="peek"] .villain { opacity: .75; --lit: .3; }
 .villain-clip[data-state="lurk"] .villain,
-.villain-clip[data-state="nervous"] .villain { transform: translateY(20%); }
-.villain-clip[data-state="foiled"] .villain { transform: translateY(100%); }
+.villain-clip[data-state="nervous"] .villain { opacity: 1; --lit: 1; transform: translateY(20%); }
+.villain-clip[data-state="foiled"] .villain { opacity: 0; --lit: 0; transform: translateY(100%); }
 .villain-say { position: absolute; right: 270px; bottom: calc(100% + 30px); max-width: 260px; margin: 0; padding: 8px 12px; font-size: .85rem; font-weight: 600; color: #fff; background: #262b40; border-radius: 12px; opacity: 0; transform: translateY(6px); transition: opacity .25s, transform .25s; pointer-events: none; z-index: 2; }
 .villain-say::after { content: ""; position: absolute; right: -8px; bottom: 10px; border: 8px solid transparent; border-left-color: #262b40; border-right: 0; }
 .villain-say.show { opacity: 1; transform: none; }
 @media (prefers-color-scheme: dark) {
-  .villain { filter: drop-shadow(0 0 1px #c9c2ff) drop-shadow(0 0 1px #c9c2ff); }
+  .villain { --outline: drop-shadow(0 0 1px #c9c2ff) drop-shadow(0 0 1px #c9c2ff); }
   .villain-say { background: #3a4160; }
   .villain-say::after { border-left-color: #3a4160; }
 }
@@ -569,6 +572,8 @@ $('run').addEventListener('click', compare);
 $('input').addEventListener('keydown', (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') compare(); });
 $('input').addEventListener('input', () => { markStale(); villainFromInput(); });
 villainFromInput();
+// Let him fade in out of the shadows a moment after the page loads.
+setTimeout(() => $('villain').classList.add('ready'), 600);
 boot();
 </script>
 </body>
